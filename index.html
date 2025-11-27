@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stranger Gifts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Benguiat+ITC&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Using a Google Font that looks like the Stranger Things title -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Creepster&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background-color: #050505;
+        color: white;
+        font-family: "Roboto", sans-serif;
+      }
+
+      /* Stranger Things Text Effect */
+      .stranger-title {
+        font-family: "Creepster", cursive;
+        color: #ff1e1e;
+        text-shadow: 0 0 10px #ff0000, 0 0 20px #a70000;
+        letter-spacing: 2px;
+      }
+
+      /* The Map Container */
+      .map-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px; /* Limits map size on big screens */
+        margin: 0 auto;
+        border: 2px solid #333;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.2);
+      }
+
+      /* The Map Image */
+      .map-image {
+        width: 100%;
+        display: block;
+        filter: sepia(50%) contrast(120%) brightness(80%); /* Makes it look retro */
+      }
+
+      /* The Location Markers (The dots) */
+      .marker {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background-color: rgba(255, 0, 0, 0.2);
+        border: 2px solid #ff0000;
+        border-radius: 50%;
+        cursor: pointer;
+        transform: translate(
+          -50%,
+          -50%
+        ); /* Centers the dot on the coordinates */
+        animation: pulse 2s infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        box-shadow: 0 0 10px #ff0000;
+        transition: all 0.3s;
+      }
+
+      .marker:hover {
+        background-color: #ff0000;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+        }
+      }
+
+      /* The Pop-up Modal */
+      .modal {
+        transition: opacity 0.3s ease;
+      }
+
+      #modal-desc {
+        max-height: 300px; /* Adjust this value as needed */
+        overflow-y: auto; /* Enable scrolling if content exceeds the max height */
+      }
+    </style>
+  </head>
+  <body class="flex flex-col items-center min-h-screen p-4">
+    <!-- Header -->
+    <div class="text-center mb-6 mt-4">
+      <h1 class="stranger-title text-5xl md:text-6xl mb-2">
+        ¡Felicidades Jorge Andrés!
+      </h1>
+      <p class="text-gray-400 text-sm tracking-widest uppercase">
+        Explora los misterios de Hawkins
+      </p>
+    </div>
+
+    <!-- The Map Area -->
+    <div class="map-container" id="map-area">
+      <!-- 
+           "Hawkins Map"           
+        -->
+      <img
+        src="https://mir-s3-cdn-cf.behance.net/project_modules/fs_webp/2f3488133851509.62b25d5f69acc.jpg"
+        alt="Hawkins Map"
+        class="map-image"
+      />
+
+      <!-- Markers are inserted here by JavaScript -->
+    </div>
+
+    <p class="mt-4 text-xs text-gray-600 text-center">
+      De Camilo para Jorge Andrés - 28.11.2025.
+    </p>
+
+    <!-- HIDDEN POPUP MODAL -->
+    <div
+      id="modal"
+      class="modal fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 opacity-0 pointer-events-none"
+    >
+      <div
+        class="bg-gray-900 border-2 border-red-800 rounded-lg p-6 max-w-sm w-full text-center shadow-2xl shadow-red-900/50 transform scale-95 transition-transform duration-300 relative"
+      >
+        <!-- Close Button -->
+        <button
+          onclick="closeModal()"
+          class="absolute top-2 right-3 text-gray-500 hover:text-white text-xl"
+        >
+          &times;
+        </button>
+
+        <!-- Gift Content -->
+        <div id="modal-icon" class="text-4xl mb-4">🎁</div>
+        <h2 id="modal-title" class="stranger-title text-3xl mb-2">Gift Name</h2>
+        <p id="modal-desc" class="text-gray-300 mb-6 font-light">
+          Description goes here
+        </p>
+
+        <button
+          onclick="confirmGift()"
+          class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 px-4 rounded shadow-[0_0_15px_rgba(255,0,0,0.5)] uppercase tracking-wider transition-all"
+        >
+          Quiero esto!
+        </button>
+      </div>
+    </div>
+
+    <!-- Introduction Modal -->
+    <div
+      id="intro-modal"
+      class="modal fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 opacity-0 pointer-events-none"
+    >
+      <div
+        class="bg-gray-900 border-2 border-red-800 rounded-lg p-6 max-w-sm w-full text-center shadow-2xl shadow-red-900/50 transform scale-95 transition-transform duration-300 relative"
+      >
+        <button
+          onclick="closeIntroModal()"
+          class="absolute top-2 right-3 text-gray-500 hover:text-white text-xl"
+        >
+          &times;
+        </button>
+
+        <h2 class="stranger-title text-3xl mb-4">¡Felicidades Jorge Andrés!</h2>
+        <p class="text-gray-300 mb-4">
+          ¡El gran día ha llegado! Después de años de estudios, ahora estás
+          listo para embarcarte en una nueva etapa de tu vida. Y para
+          celebrarlo, ¡te tengo un par de regalos especiales para acompañarte en
+          tu camino!
+        </p>
+        <p class="text-gray-300 mb-4">
+          Tienes la oportunidad de elegir <strong>dos regalos</strong> que harán
+          tu vida un poco más divertida y cómoda mientras te aventuras en el
+          "nuevo mundo" después del colegio!
+        </p>
+        <p class="text-gray-300 mb-6">
+          ¡Explora las opciones y elige los dos regalos que quieras! 🎁✨
+        </p>
+
+        <button
+          onclick="closeIntroModal()"
+          class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 px-4 rounded shadow-[0_0_15px_rgba(255,0,0,0.5)] uppercase tracking-wider transition-all"
+        >
+          ¡Comenzar!
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // ==========================================
+      // 👇 CONFIGURATION ZONE jejeje 👇
+      // ==========================================
+
+      const MY_PHONE = "";
+
+      // 2. THE LOCATIONS & GIFTS
+      // 'top' and 'left' are percentages on the map.
+      const locations = [
+        {
+          id: "money",
+          title: "Starcourt Mall",
+          gift: "Dinero en efectivo... o tal vez nada",
+          desc: "¡Bienvenido a Starcourt Mall!... Hay algo extraño en el aire.\nMientras paseas por las tiendas, te encuentras con un dado misterioso que parece sacado del Upside Down.\n\n Aquí tienes la oportunidad de abandonar todo lo demás y reclamar una sola recompensa.\n\nCada lanzamiento te da 100.000 COP, pero cuidado… el portal del Upside Down está cada vez más cerca.\n\nReglas del juego:\n\nLanza el dado de 6 caras: si el portal no se cierra, ganarás 100.000 COP y podrás lanzar nuevamente.\n\nCon cada lanzamiento, el riesgo de que el portal se cierre aumenta. Cuanto más lances, más cerca estarás de que el portal se cierre de golpe.\n\nTabla de Riesgo:\n\nPrimer lanzamiento: El portal se cierra si sacas un 6.\nSegundo lanzamiento: El portal se cierra si sacas un 5 o 6.\nTercer lanzamiento: El portal se cierra si sacas un 4, 5 o 6.\nCuarto lanzamiento: El portal se cierra si sacas un 3, 4, 5 o 6.\nQuinto lanzamiento: El portal se cierra si sacas un 2, 3, 4, 5 o 6.\nSexto lanzamiento: Cualquier número (1, 2, 3, 4, 5 o 6) cierra el portal.\n\n¡Cuidado! El portal podría cerrarse en cualquier momento y atraparte en el Upside Down.\n\n¿Te atreves a abandonar todo lo demás y jugar con el dado? Elige sabiamente... esta es tu única oportunidad!!",
+          emoji: "💵",
+          top: 58, // 80% down the map
+          left: 77, // 20% from the left
+        },
+        {
+          id: "xbox",
+          title: "Palace Arcade",
+          gift: "Xbox Game Pass! tú escoges: ULTIMATE por 3 meses o Essential por 1 año",
+          desc: "¡Entraste al Hawkins Arcade! Hora de romper récords y vencer monstruos… o solo pasarla bien. Tu recompensa: una suscripción a Xbox Game Pass. Que comiencen los juegos… y que ningún misterio arruine la partida.",
+          emoji: "🕹️",
+          top: 42,
+          left: 70,
+        },
+        {
+          id: "duolingo",
+          title: "Hawkins High School",
+          gift: "Super Duolingo por 1 año",
+          desc: "Bienvenido a Hawkins High. Entre exámenes, monstruos y desapariciones, siempre hay algo nuevo que aprender. Ahora te toca a ti dominar un nuevo idioma… antes de que el Upside Down te tome por sorpresa. Ponte las pilas… o el Demogorgon te va a hacer perder la materia...",
+          emoji: "📚",
+          top: 40,
+          left: 83,
+        },
+        {
+          id: "rappi",
+          title: "Surfer Boy Pizza",
+          gift: "Rappi Pro por 1 año",
+          desc: "Whoa, dude! Encontraste a Surfer Boy Pizza. El universo te regala comida via Rappi. Agarra tu pizza, relájate… y mantente bien alimentado para seguir dándole batalla al Upside Down.",
+          emoji: "🍕",
+          top: 22,
+          left: 18,
+        },
+        {
+          id: "spotify",
+          title: "La sala de los Byers (Luces de navidad)",
+          gift: "Spotify Premium por 1 año",
+          desc: "Las luces están parpadeando… alguien intenta decirte algo. Descifra el mensaje con una suscripción a Spotify Premium por 1 año!",
+          emoji: "🎧",
+          top: 53,
+          left: 11,
+        },
+      ];
+
+      // ==========================================
+      // 👆 END CONFIGURATION 👆
+      // ==========================================
+
+      let currentSelection = null;
+      const modal = document.getElementById("modal");
+      const mapArea = document.getElementById("map-area");
+
+      // Draw Markers on the Map
+      locations.forEach((loc) => {
+        const dot = document.createElement("div");
+        dot.className = "marker";
+        // Set position based on percentages
+        dot.style.top = loc.top + "%";
+        dot.style.left = loc.left + "%";
+
+        // Add icon inside dot (optional)
+        dot.innerText = loc.emoji;
+
+        // Click event
+        dot.onclick = () => openModal(loc);
+
+        mapArea.appendChild(dot);
+      });
+
+      function openModal(loc) {
+        currentSelection = loc;
+
+        // Fill data
+        document.getElementById("modal-title").innerText = loc.title;
+        document.getElementById(
+          "modal-desc"
+        ).innerText = `Regalo: ${loc.gift}\n\n${loc.desc}`;
+        document.getElementById("modal-icon").innerText = loc.emoji;
+
+        // Show modal with animation
+        modal.classList.remove("hidden");
+        // Small delay to allow CSS transition to catch the display change
+        setTimeout(() => {
+          modal.classList.remove("opacity-0", "pointer-events-none");
+          modal.firstElementChild.classList.remove("scale-95");
+          modal.firstElementChild.classList.add("scale-100");
+        }, 10);
+      }
+
+      function closeModal() {
+        modal.classList.add("opacity-0", "pointer-events-none");
+        modal.firstElementChild.classList.add("scale-95");
+        modal.firstElementChild.classList.remove("scale-100");
+        setTimeout(() => {
+          modal.classList.add("hidden");
+        }, 300);
+      }
+
+      function confirmGift() {
+        if (!currentSelection) return;
+
+        const text = `Hola! 🚲 fui a *${currentSelection.title}* y quiero: ${currentSelection.gift}! 🎁`;
+        const url = `https://wa.me/${MY_PHONE}?text=${encodeURIComponent(
+          text
+        )}`;
+        window.open(url, "_blank");
+      }
+      // Show the intro modal when the page loads
+      window.onload = function () {
+        document.getElementById("intro-modal").classList.remove("hidden");
+        setTimeout(() => {
+          document
+            .getElementById("intro-modal")
+            .classList.remove("opacity-0", "pointer-events-none");
+          document
+            .getElementById("intro-modal")
+            .firstElementChild.classList.remove("scale-95");
+          document
+            .getElementById("intro-modal")
+            .firstElementChild.classList.add("scale-100");
+        }, 10);
+      };
+
+      // Close the intro modal
+      function closeIntroModal() {
+        document
+          .getElementById("intro-modal")
+          .classList.add("opacity-0", "pointer-events-none");
+        document
+          .getElementById("intro-modal")
+          .firstElementChild.classList.add("scale-95");
+        document
+          .getElementById("intro-modal")
+          .firstElementChild.classList.remove("scale-100");
+        setTimeout(() => {
+          document.getElementById("intro-modal").classList.add("hidden");
+        }, 300);
+      }
+    </script>
+  </body>
+</html>
