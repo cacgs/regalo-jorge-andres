@@ -312,14 +312,22 @@
       }
 
       function confirmGift() {
-        if (!currentSelection) return;
+		if (!currentSelection) return;
 
-        const text = `Hola! 🚲 fui a *${currentSelection.title}* y quiero: ${currentSelection.gift}! 🎁`;
-        const url = `https://wa.me/${MY_PHONE}?text=${encodeURIComponent(
-          text
-        )}`;
-        window.open(url, "_blank");
+		// Prompt the user for their phone number if not already provided
+		let phoneNumber = prompt("Por favor escribe mi numero de telefono (es para no publicar mi numero en internet :P (con codigo de pais, e.g. 49176812xxxxx:");
+
+		if (phoneNumber) {
+			const text = `Hola! fui a *${currentSelection.title}* y quiero: ${currentSelection.gift}! `;
+			const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
+
+			// Open WhatsApp with the message to the provided number
+			window.open(url, "_blank");
+		} else {
+			alert("Por favor, ingresa un número de teléfono válido.");
+		}
       }
+	  
       // Show the intro modal when the page loads
       window.onload = function () {
         document.getElementById("intro-modal").classList.remove("hidden");
