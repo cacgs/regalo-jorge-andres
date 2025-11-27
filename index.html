@@ -283,31 +283,35 @@
       });
 
       function openModal(loc) {
-        currentSelection = loc;
+		currentSelection = loc;
 
-        // Fill data
-        document.getElementById("modal-title").innerText = loc.title;
+		// Fill data
+		document.getElementById("modal-title").innerText = loc.title;
+		
+		// Create and add image
 		const imgElement = document.createElement('img');
 		imgElement.src = `img/${loc.id}.jpeg`;
 		imgElement.alt = `${loc.title} Image`;
-		imgElement.classList.add('w-full', 'h-auto', 'my-4'); // Add Tailwind classes for styling
-		
-		const modalDesc = document.getElementById("modal-desc");
-		modalDesc.innerHTML = ''; // Clear previous content before appending new
-		modalDesc.appendChild(imgElement);  // Add the image
-		
-		modalDesc.innerHTML += `Regalo: ${loc.gift}\n\n${loc.desc}`;
-        document.getElementById("modal-icon").innerText = loc.emoji;
+		imgElement.classList.add('w-full', 'h-auto', 'my-4'); // Tailwind classes
 
-        // Show modal with animation
-        modal.classList.remove("hidden");
-        // Small delay to allow CSS transition to catch the display change
-        setTimeout(() => {
-          modal.classList.remove("opacity-0", "pointer-events-none");
-          modal.firstElementChild.classList.remove("scale-95");
-          modal.firstElementChild.classList.add("scale-100");
-        }, 10);
-      }
+		const modalDesc = document.getElementById("modal-desc");
+		modalDesc.innerHTML = ''; // Clear previous content
+		modalDesc.appendChild(imgElement); // Add image
+
+		// Add the gift text and description with line breaks
+		modalDesc.innerHTML += `Regalo: ${loc.gift}<br><br>${loc.desc.replace(/\n/g, '<br>')}`;
+		
+		document.getElementById("modal-icon").innerText = loc.emoji;
+
+		// Show modal with animation
+		modal.classList.remove("hidden");
+		setTimeout(() => {
+			modal.classList.remove("opacity-0", "pointer-events-none");
+			modal.firstElementChild.classList.remove("scale-95");
+			modal.firstElementChild.classList.add("scale-100");
+		}, 10);
+	  }
+
 
       function closeModal() {
         modal.classList.add("opacity-0", "pointer-events-none");
